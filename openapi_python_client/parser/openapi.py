@@ -141,7 +141,7 @@ class Endpoint:
     requires_security: bool
     tags: list[PythonIdentifier]
     summary: str | None = ""
-    extra: dict[str, Any] | None = None
+    extensions: dict[str, Any] | None = None
     deprecated: bool = False
     external_docs: oai.openapi_schema_pydantic.ExternalDocumentation | None = None
     relative_imports: set[str] = field(default_factory=set)
@@ -430,7 +430,7 @@ class Endpoint:
             tags=tags,
             external_docs=data.externalDocs,
             deprecated=data.deprecated,
-            extra=data.model_extra,
+            extensions=data.model_extra,
         )
 
         result, schemas, parameters = Endpoint.add_parameters(
