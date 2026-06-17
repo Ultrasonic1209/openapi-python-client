@@ -416,6 +416,9 @@ class Endpoint:
         else:
             name = data.operationId
 
+        if data.servers:
+            path = data.servers[0].url + path
+
         endpoint = Endpoint(
             path=path,
             method=method,
