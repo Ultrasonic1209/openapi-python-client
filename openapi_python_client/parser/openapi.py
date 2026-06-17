@@ -511,6 +511,7 @@ class GeneratorData:
     title: str
     description: str | None
     version: str
+    default_base_url: str | None
     models: list[ModelProperty]
     errors: list[ParseError]
     endpoint_collections_by_tag: dict[utils.PythonIdentifier, EndpointCollection]
@@ -554,6 +555,10 @@ class GeneratorData:
         ]
         models = [prop for prop in schemas.classes_by_name.values() if isinstance(prop, ModelProperty)]
 
+        default_base_url = None
+        if openapi.servers:
+            default_base_url = openapi.servers[0].url
+
         return GeneratorData(
             title=openapi.info.title,
             description=openapi.info.description,
@@ -562,4 +567,5 @@ class GeneratorData:
             models=models,
             errors=schemas.errors + parameters.errors,
             enums=enums,
+            default_base_url=default_base_url,
         )
