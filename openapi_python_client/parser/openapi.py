@@ -141,6 +141,7 @@ class Endpoint:
     requires_security: bool
     tags: list[PythonIdentifier]
     summary: str | None = ""
+    extra: dict[str, Any] | None = None
     deprecated: bool = False
     external_docs: oai.openapi_schema_pydantic.ExternalDocumentation | None = None
     relative_imports: set[str] = field(default_factory=set)
@@ -428,10 +429,8 @@ class Endpoint:
             requires_security=bool(data.security),
             tags=tags,
             external_docs=data.externalDocs,
-            deprecated=data.deprecated
-            or (
-                bool(data.model_extra.get("x-roblox-recommended-alternatives") and True) if data.model_extra else False
-            ),
+            deprecated=data.deprecated,
+            extra=data.model_extra,
         )
 
         result, schemas, parameters = Endpoint.add_parameters(
