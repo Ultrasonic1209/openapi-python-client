@@ -63,7 +63,7 @@ class Client:
 {% macro attributes() %}
     {{ declare_attr("raise_on_unexpected_status") | indent(4) }}
     {% if openapi.default_base_url %}
-    _base_url: str = field(default={{ openapi.default_base_url }} kw_only=True, alias="base_url")
+    _base_url: str = field(default="{{ openapi.default_base_url }}", kw_only=True, alias="base_url")
     {% else %}
     _base_url: str = field(alias="base_url")
     {% endif %}
