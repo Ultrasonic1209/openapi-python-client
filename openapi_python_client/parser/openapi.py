@@ -520,6 +520,7 @@ class GeneratorData:
     title: UntrustedString
     description: UntrustedString | None
     version: UntrustedString
+    default_base_url: UntrustedString | None
     models: list[ModelProperty]
     errors: list[ParseError]
     endpoint_collections_by_tag: dict[strings.PythonIdentifier, EndpointCollection]
