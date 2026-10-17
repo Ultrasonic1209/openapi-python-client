@@ -4,17 +4,58 @@ import json
 import mimetypes
 import shutil
 import subprocess
+import warnings
 from collections.abc import Callable, Sequence
 from importlib.metadata import version
 from pathlib import Path
 from subprocess import CalledProcessError
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-import httpcore2
-import httpx2
 from jinja2 import BaseLoader, ChoiceLoader, Environment, FileSystemLoader, PackageLoader
 from ruamel.yaml import YAML
 from ruamel.yaml.error import YAMLError
+
+if TYPE_CHECKING:
+    import httpx2 as httpx
+else:
+    try:
+        import httpx2 as httpx
+    except ModuleNotFoundError:
+        try:
+            import httpx
+        except ModuleNotFoundError:
+            raise RuntimeError(
+                "This module requires the httpx2 package to be installed.\n"
+                "You can install it with:\n"
+                "    $ pip install httpx2\n"
+            ) from None
+        else:
+            warnings.warn(
+                "Using `httpx` with this package is deprecated; install `httpx2` instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+
+if TYPE_CHECKING:
+    import httpcore2 as httpcore
+else:
+    try:
+        import httpcore2 as httpcore
+    except ModuleNotFoundError:
+        try:
+            import httpcore
+        except ModuleNotFoundError:
+            raise RuntimeError(
+                "This module requires the httpcore2 package to be installed.\n"
+                "You can install it with:\n"
+                "    $ pip install httpcore2\n"
+            ) from None
+        else:
+            warnings.warn(
+                "Using `httpcore` with this package is deprecated; install `httpcore2` instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
 
 from openapi_python_client import strings
 
@@ -355,14 +396,14 @@ def _get_document(*, source: str | Path, timeout: int) -> dict[str, Any] | Gener
     content_type: str | None
     if isinstance(source, str):
         try:
-            response = httpx2.get(source, timeout=timeout)
+            response = httpx.get(source, timeout=timeout)
             yaml_bytes = response.content
             if "content-type" in response.headers:
                 content_type = response.headers["content-type"].split(";")[0]
             else:  # pragma: no cover
                 content_type = mimetypes.guess_type(source, strict=True)[0]
 
-        except (httpx2.HTTPError, httpcore2.NetworkError):
+        except (httpx.HTTPError, httpcore.NetworkError):
             return GeneratorError(header="Could not get OpenAPI document from provided URL")
     else:
         yaml_bytes = source.read_bytes()
