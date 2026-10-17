@@ -397,7 +397,7 @@ class Endpoint:
 
         if parameters_from_path != [param.name for param in endpoint.path_parameters]:
             return ParseError(
-                detail=f"Incorrect path templating for {endpoint.path.get_untrusted_value()} (Path parameters do not match with path)",
+                detail=f"Incorrect path templating for {endpoint.path.get_untrusted_value()} (Path parameters do not match with path ({[param.name for param in endpoint.path_parameters]}))",
             )
         for parameter in endpoint.path_parameters:
             endpoint.path = UntrustedString(
