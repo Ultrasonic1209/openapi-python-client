@@ -188,7 +188,7 @@ class Endpoint:
                 endpoint.errors.append(
                     ParseError(
                         detail=(
-                            f"Cannot parse response for status code {code}{detail_suffix}, "
+                            f"Cannot parse response for status code {code.get_untrusted_value()}{detail_suffix}, "
                             f"response will be omitted from generated client"
                         ),
                         data=response.data,
@@ -397,7 +397,7 @@ class Endpoint:
 
         if parameters_from_path != [param.name for param in endpoint.path_parameters]:
             return ParseError(
-                detail=f"Incorrect path templating for {endpoint.path.get_untrusted_value()} (Path parameters do not match with path ({[param.name for param in endpoint.path_parameters]}))",
+                detail=f"Incorrect path templating for {endpoint.path.get_untrusted_value()} (Path parameters do not match with path ({[param.name.get_untrusted_value() for param in endpoint.path_parameters]}))",
             )
         for parameter in endpoint.path_parameters:
             endpoint.path = UntrustedString(
