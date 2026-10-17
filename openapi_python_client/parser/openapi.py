@@ -428,7 +428,7 @@ class Endpoint:
             name = PythonIdentifier(data.operationId, prefix=config.field_prefix)
 
         if data.servers:
-            path = data.servers[0].url + path
+            path = UntrustedString(data.servers[0].url.get_untrusted_value() + path.get_untrusted_value())
 
         endpoint = Endpoint(
             path=path,
