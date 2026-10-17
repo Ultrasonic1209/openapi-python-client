@@ -163,8 +163,8 @@ class EnumProperty(PropertyProtocol):
                     raw_value=value,
                 )
             except KeyError:
-                return PropertyError(detail=f"Value {value} is not valid for enum {self.name}")
-        return PropertyError(detail=f"Cannot convert {value} to enum {self.name} of type {self.value_type}")
+                return PropertyError(detail=f"Value {value} is not valid for enum {self.name.get_untrusted_value()}")
+        return PropertyError(detail=f"Cannot convert {value} to enum {self.name.get_untrusted_value()} of type {self.value_type}")
 
     def get_base_type_string(self) -> strings.PythonCode:
         return strings.PythonCode(self.class_info.name)
