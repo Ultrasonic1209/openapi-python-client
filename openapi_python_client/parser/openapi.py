@@ -147,6 +147,9 @@ class Endpoint:
     requires_security: bool
     tags: list[PythonIdentifier]
     summary: UntrustedString
+    extensions: dict[str, Any] | None = None
+    deprecated: bool = False
+    external_docs: oai.openapi_schema_pydantic.ExternalDocumentation | None = None
     relative_imports: set[str] = field(default_factory=set)
     query_parameters: list[Property] = field(default_factory=list)
     path_parameters: list[Property] = field(default_factory=list)
