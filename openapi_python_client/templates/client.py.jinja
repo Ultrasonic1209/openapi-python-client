@@ -47,7 +47,7 @@ else:
 class Client:
     """A class for keeping track of data related to the API
 
-{% macro httpx2_args_docstring() %}
+{% macro httpx_args_docstring() %}
     The following are accepted as keyword arguments and will be used to construct httpx2 Clients internally:
 
         ``base_url``: The base URL for the API, all requests are made to a relative path to this URL
@@ -66,7 +66,7 @@ class Client:
 
         ``httpx2_args``: A dictionary of additional arguments to be passed to the ``httpx2.Client`` and ``httpx2.AsyncClient`` constructor.
 {% endmacro %}
-{{ httpx2_args_docstring() }}
+{{ httpx_args_docstring() }}
 {% if not config.docstrings_on_attributes %}
 
     Attributes:
@@ -82,12 +82,12 @@ class Client:
     {% endif %}
     _cookies: dict[str, str] = field(factory=dict, kw_only=True, alias="cookies")
     _headers: dict[str, str] = field(factory=dict, kw_only=True, alias="headers")
-    _timeout: httpx2.Timeout | None = field(default=None, kw_only=True, alias="timeout")
+    _timeout: httpx.Timeout | None = field(default=None, kw_only=True, alias="timeout")
     _verify_ssl: str | bool | ssl.SSLContext = field(default=True, kw_only=True, alias="verify_ssl")
     _follow_redirects: bool = field(default=False, kw_only=True, alias="follow_redirects")
-    _httpx2_args: dict[str, Any] = field(factory=dict, kw_only=True, alias="httpx2_args")
-    _client: httpx2.Client | None = field(default=None, init=False)
-    _async_client: httpx2.AsyncClient | None = field(default=None, init=False)
+    _httpx_args: dict[str, Any] = field(factory=dict, kw_only=True, alias="httpx_args")
+    _client: httpx.Client | None = field(default=None, init=False)
+    _async_client: httpx.AsyncClient | None = field(default=None, init=False)
 {% endmacro %}{{ attributes() }}
 {% macro builders(self) %}
     def with_headers(self, headers: dict[str, str]) -> "{{ self }}":
@@ -106,7 +106,7 @@ class Client:
             self._async_client.cookies.update(cookies)
         return evolve(self, cookies={**self._cookies, **cookies})
 
-    def with_timeout(self, timeout: httpx2.Timeout) -> "{{ self }}":
+    def with_timeout(self, timeout: httpx.Timeout) -> "{{ self }}":
         """Get a new client matching this one with a new timeout configuration"""
         if self._client is not None:
             self._client.timeout = timeout
@@ -123,20 +123,20 @@ class Client:
         self._client = client
         return self
 
-    def get_httpx2_client(self) -> httpx2.Client:
+    def get_httpx_client(self) -> httpx.Client:
         """Get the underlying httpx2.Client, constructing a new one if not previously set"""
         if self._client is None:
         {% if custom_constructor %}
             {{ custom_constructor | indent(12) }}
         {% endif %}
-            self._client = httpx2.Client(
+            self._client = httpx.Client(
                 base_url=self._base_url,
                 cookies=self._cookies,
                 headers=self._headers,
                 timeout=self._timeout,
                 verify=self._verify_ssl,
                 follow_redirects=self._follow_redirects,
-                **self._httpx2_args,
+                **self._httpx_args,
             )
         return self._client
 
@@ -147,7 +147,7 @@ class Client:
 
     def __exit__(self, *args: Any, **kwargs: Any) -> None:
         """Exit a context manager for internal httpx2.Client (see httpx2 docs)"""
-        self.get_httpx2_client().__exit__(*args, **kwargs)
+        self.get_httpx_client().__exit__(*args, **kwargs)
 
     def set_async_httpx_client(self, async_client: httpx.AsyncClient) -> Self:
         """Manually set the underlying httpx.AsyncClient
@@ -157,20 +157,20 @@ class Client:
         self._async_client = async_client
         return self
 
-    def get_async_httpx2_client(self) -> httpx2.AsyncClient:
+    def get_async_httpx_client(self) -> httpx.AsyncClient:
         """Get the underlying httpx2.AsyncClient, constructing a new one if not previously set"""
         if self._async_client is None:
         {% if custom_constructor %}
             {{ custom_constructor | indent(12) }}
         {% endif %}
-            self._async_client = httpx2.AsyncClient(
+            self._async_client = httpx.AsyncClient(
                 base_url=self._base_url,
                 cookies=self._cookies,
                 headers=self._headers,
                 timeout=self._timeout,
                 verify=self._verify_ssl,
                 follow_redirects=self._follow_redirects,
-                **self._httpx2_args,
+                **self._httpx_args,
             )
         return self._async_client
 
@@ -181,14 +181,14 @@ class Client:
 
     async def __aexit__(self, *args: Any, **kwargs: Any) -> None:
         """Exit a context manager for underlying httpx2.AsyncClient (see httpx2 docs)"""
-        await self.get_async_httpx2_client().__aexit__(*args, **kwargs)
-{% endmacro %}{{ httpx2_stuff("Client") }}
+        await self.get_async_httpx_client().__aexit__(*args, **kwargs)
+{% endmacro %}{{ httpx_stuff("Client") }}
 
 @define
 class AuthenticatedClient:
     """A Client which has been authenticated for use on secured endpoints
 
-{{ httpx2_args_docstring() }}
+{{ httpx_args_docstring() }}
 {% if not config.docstrings_on_attributes %}
 
     Attributes:
@@ -205,4 +205,4 @@ class AuthenticatedClient:
     {{ declare_attr("auth_header_name") | indent(4) }}
 
 {{ builders("AuthenticatedClient") }}
-{{ httpx2_stuff("AuthenticatedClient", "self._headers[self.auth_header_name] = f\"{self.prefix} {self.token}\" if self.prefix else self.token") }}
+{{ httpx_stuff("AuthenticatedClient", "self._headers[self.auth_header_name] = f\"{self.prefix} {self.token}\" if self.prefix else self.token") }}
